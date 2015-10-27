@@ -54,15 +54,20 @@ while getopts "a:f:h" ARG; do
 done
 shift $((OPTIND-1))
 
-if [ -n "$FILE" ]; then
-    ldd "$FILE"
-else
-    cat
-fi |
+
+find_missing_shared_libs()
+{
     awk '/not found/ { print $1 }' |
-    parallel -j10 'apt-file search {} | head -n1' |
-    uniq |
-    perl -pe '
+        parallel -j10 'apt-file search {} | head -n1' |
+        uniq |
+        perl -pe '
 BEGIN { $arch = shift }
 s/:.*$/:$arch/
-' -- "$ARCH"
+' -- "$1"
+}
+
+if [ -n "$FILE" ]; then
+    ldd "$FILE" | find_missing_shared_libs "$ARCH"
+else
+    find_missing_shared_libs "$ARCH"
+fi
