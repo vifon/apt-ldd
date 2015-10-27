@@ -29,11 +29,6 @@ Usage:
 EOF
 }
 
-if [ -t 0 ]; then
-    usage
-    exit
-fi
-
 ARCH=$(dpkg --print-architecture)
 
 while getopts "a:f:h" ARG; do
@@ -54,6 +49,10 @@ while getopts "a:f:h" ARG; do
 done
 shift $((OPTIND-1))
 
+if [ -t 0 -a -z "$FILE" ]; then
+    usage
+    exit
+fi
 
 find_missing_shared_libs()
 {
