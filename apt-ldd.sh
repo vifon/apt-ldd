@@ -2,7 +2,7 @@
 
 # apt-ldd.sh --- Get the packages containing the missing shared libraries
 
-# Copyright (C) 2015 Wojciech Siewierski <wojciech dot siewierski at onet dot pl>
+# Copyright (C) 2015-2017 Wojciech Siewierski <wojciech dot siewierski at onet dot pl>
 
 # Author: Wojciech Siewierski <wojciech dot siewierski at onet dot pl>
 
@@ -57,7 +57,7 @@ fi
 find_missing_shared_libs()
 {
     awk '/not found/ { print $1 }' |
-        parallel -j10 'apt-file search {} | head -n1' |
+        xargs -I{} -n1 sh -c 'apt-file search {} | head -n1' |
         uniq |
         perl -pe '
 BEGIN { $arch = shift }
